@@ -62,6 +62,21 @@
             <groupId>com.valleycampus.usb</groupId>
             <artifactId>cherax-jsr80</artifactId>
             <version>0.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>javax-usb-ri</artifactId>
+                    <groupId>com.ibm.jusb</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>runtime-cdc11</artifactId>
+                    <groupId>com.ajile</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.squilla</groupId>
+            <artifactId>squilla-commons</artifactId>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 
