@@ -30,6 +30,7 @@ import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 import org.osgi.framework.BundleContext;
 import org.squilla.usb.UsbDeviceDriver;
+import org.squilla.util.ArrayFifoQueue;
 import org.squilla.util.FifoQueue;
 
 /**
@@ -70,8 +71,8 @@ public class BulkOnlyTransportDriver extends UsbDeviceDriver implements Runnable
     public BulkOnlyTransportDriver(BundleContext bc) {
         super(bc);
         commandBuffer = new byte[COMMAND_BUFFER_SIZE];
-        commandBlockQueue = new FifoQueue(QUEUE_SIZE);
-        statusQueue = new FifoQueue(QUEUE_SIZE);
+        commandBlockQueue = new ArrayFifoQueue(QUEUE_SIZE);
+        statusQueue = new ArrayFifoQueue(QUEUE_SIZE);
         maxLUN = -1;
     }
 
