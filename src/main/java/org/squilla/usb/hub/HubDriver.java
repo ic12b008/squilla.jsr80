@@ -86,7 +86,7 @@ public class HubDriver extends UsbDeviceDriver implements Runnable {
         statusBuffer = new byte[hubDescriptor.portPwrCtrlMask().length];
 
         logger.debug("[Hub] Number of Ports: " + hubDescriptor.bNbrPorts());
-        logger.debug("[Hub] Buffer Size: " + statusBuffer.length);
+        logger.trace("[Hub] Buffer Size: " + statusBuffer.length);
 
         osDriver.attach(usbDevice, hubDescriptor.bNbrPorts());
 
@@ -113,8 +113,8 @@ public class HubDriver extends UsbDeviceDriver implements Runnable {
         portIndicatorSupported = (hc & HC_PIS_MASK) > 0;
         individualPowerSupported = ((hc & HC_LPSM_MASK) == HC_LPSM_INDIVIDUAL);
 
-        logger.debug("[Hub] Port Indicator Supported: " + portIndicatorSupported);
-        logger.debug("[Hub] Individual Power Switching: " + individualPowerSupported);
+        logger.trace("[Hub] Port Indicator Supported: " + portIndicatorSupported);
+        logger.trace("[Hub] Individual Power Switching: " + individualPowerSupported);
 
         for (byte port = 1; port <= hubDescriptor.bNbrPorts(); port++) {
             hubRequest.clearPortFeature(HubRequest.FEATURE_SELECTOR_C_PORT_CONNECTION, (byte) 0, port);
@@ -128,9 +128,9 @@ public class HubDriver extends UsbDeviceDriver implements Runnable {
             }
             int status = hubRequest.getPortStatus(port)[HubRequest.PORT_STATUS_BITS];
             if ((status & HubRequest.PS_PORT_POWER) > 0) {
-                logger.debug("[Hub] Port " + port + " Power Good");
+                logger.trace("[Hub] Port " + port + " Power Good");
             } else {
-                logger.debug("[Hub] Port " + port + " Power Bad");
+                logger.trace("[Hub] Port " + port + " Power Bad");
             }
         }
 
