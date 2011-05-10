@@ -22,6 +22,7 @@ import javax.usb.UsbDevice;
 import javax.usb.UsbEndpoint;
 import javax.usb.UsbException;
 import javax.usb.util.UsbUtil;
+import org.squilla.util.ByteUtil;
 
 /**
  *
@@ -140,12 +141,12 @@ public class HubRequest {
                 UsbConst.REQUESTTYPE_DIRECTION_IN;
         bmRequestType |= recipient;
         UsbControlIrp controlIrp = usbDevice.createUsbControlIrp(bmRequestType, REQUEST_GET_STATUS, (short) 0, wIndex);
-        byte[] data = new byte[4];
+        byte[] data = new byte[ByteUtil.INT_16_SIZE * 2];
         controlIrp.setData(data);
 
         usbDevice.syncSubmit(controlIrp);
 
-        return Commons.toIntLE(data, 0, 2, 2);
+        return ByteUtil.LITTLE_ENDIAN.toInt32Array(data, 0, ByteUtil.INT_16_SIZE, 2);
     }
 
     public int getTTState(short ttFlags, short ttPort, byte[] data) throws UsbException {

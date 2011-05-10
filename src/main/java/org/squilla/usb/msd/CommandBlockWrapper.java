@@ -15,13 +15,14 @@
  */
 package org.squilla.usb.msd;
 
-import org.squilla.util.Commons;
+import org.squilla.io.Frame;
+import org.squilla.io.FrameBuffer;
 
 /**
  *
  * @author Shotaro Uchida <fantom@xmaker.mx>
  */
-public class CommandBlockWrapper {
+public class CommandBlockWrapper implements Frame {
 
     public static final int CBW_SIGNATURE = 0x43425355;
     public static final int CBW_PACKET_SIZE = 31;
@@ -34,6 +35,25 @@ public class CommandBlockWrapper {
     private byte cbLength;
     private byte[] cb;
     private byte[] data;
+    
+    public void pull(FrameBuffer frameBuffer) {
+        frameBuffer.setByteOrder(FrameBuffer.BO_LITTLE_ENDIAN);
+        frameBuffer.putInt32(CBW_SIGNATURE);
+        frameBuffer.putInt32(tag);
+        frameBuffer.putInt32(dataTransferLength);
+        frameBuffer.put(flags);
+        frameBuffer.put(lun);
+        frameBuffer.put(cbLength);
+        frameBuffer.put(cb, 0, cbLength);
+    }
+    
+    public int quote() {
+        return 0x0F + cbLength;
+    }
+
+    public final void drain(FrameBuffer frameBuffer) {
+        throw new UnsupportedOperationException("Pull Only");
+    }
 
     /**
      * @return the tag
@@ -131,16 +151,5 @@ public class CommandBlockWrapper {
      */
     public void setData(byte[] data) {
         this.data = data;
-    }
-
-    public int getPacket(int offset, byte[] buffer) {
-        Commons.copyByteLE(CBW_SIGNATURE, 4, buffer, 0x00 + offset);
-        Commons.copyByteLE(tag, 4, buffer, 0x04 + offset);
-        Commons.copyByteLE(dataTransferLength, 4, buffer, 0x08 + offset);
-        buffer[0x0C + offset] = flags;
-        buffer[0x0D + offset] = lun;
-        buffer[0x0E + offset] = cbLength;
-        System.arraycopy(cb, 0, buffer, 0x0F + offset, cbLength);
-        return 0x0F + cbLength;
     }
 }

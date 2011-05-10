@@ -15,13 +15,14 @@
  */
 package org.squilla.usb.msd;
 
-import org.squilla.util.Commons;
+import org.squilla.io.Frame;
+import org.squilla.io.FrameBuffer;
 
 /**
  *
  * @author Shotaro Uchida <fantom@xmaker.mx>
  */
-public class CommandStatusWrapper {
+public class CommandStatusWrapper implements Frame {
 
     public static final int CSW_SIGNATURE = 0x53425355;
     public static final int CSW_PACKET_SIZE = 13;
@@ -29,9 +30,30 @@ public class CommandStatusWrapper {
     public static final byte STATUS_COMMAND_FAILED = 0x01;
     public static final byte STATUS_PHASE_ERROR = 0x02;
 
+    private int signature;
     private int tag;
     private int dataResidue;
     private byte status;
+    
+    public final void pull(FrameBuffer frameBuffer) {
+        throw new UnsupportedOperationException("Drain Only");
+    }
+
+    public int quote() {
+        return 1;
+    }
+
+    public void drain(FrameBuffer frameBuffer) {
+        frameBuffer.setByteOrder(FrameBuffer.BO_LITTLE_ENDIAN);
+        signature = frameBuffer.getInt32();
+        tag = frameBuffer.getInt32();
+        dataResidue = frameBuffer.getInt32();
+        status = frameBuffer.getByte();
+    }
+    
+    public boolean isValid() {
+        return signature == CSW_SIGNATURE;
+    }
 
     /**
      * @return the tag
@@ -73,17 +95,5 @@ public class CommandStatusWrapper {
      */
     public void setStatus(byte status) {
         this.status = status;
-    }
-
-    public static CommandStatusWrapper parse(int offset, byte[] buffer) {
-        int signature = Commons.toIntLE(buffer, 0x00 + offset, 0x04, 1)[0];
-        if (signature != CSW_SIGNATURE) {
-            return null;
-        }
-        CommandStatusWrapper csw = new CommandStatusWrapper();
-        csw.setTag(Commons.toIntLE(buffer, 0x04 + offset, 0x04, 1)[0]);
-        csw.setDataResidue(Commons.toIntLE(buffer, 0x08 + offset, 0x04, 1)[0]);
-        csw.setStatus(buffer[0x0C]);
-        return csw;
     }
 }

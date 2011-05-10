@@ -15,7 +15,7 @@
  */
 package org.squilla.usb.msd;
 
-import org.squilla.util.Commons;
+import org.squilla.util.ByteUtil;
 
 /**
  *
@@ -163,7 +163,7 @@ public class UsbSCSI {
                 ((logicalUnitNumber << 5) & 0xE) |
                 (relAddr ? 1 : 0)
                 );
-        System.arraycopy(Commons.toByteBE(lba, 4), 0, blockBuffer, 2, 4);
+        System.arraycopy(ByteUtil.BIG_ENDIAN.toByteArray(lba, ByteUtil.INT_32_SIZE), 0, blockBuffer, 2, ByteUtil.INT_32_SIZE);
         blockBuffer[6] = 0; // Reserved
         blockBuffer[7] = 0; // Reserved
         blockBuffer[8] = (byte) (pmi & 0x01);
@@ -187,7 +187,7 @@ public class UsbSCSI {
                 ((fua ? 1 : 0) << 3) |
                 (relAddr ? 1 : 0)
                 );
-        System.arraycopy(Commons.toByteBE(lba, 4), 0, blockBuffer, 2, 4);
+        System.arraycopy(ByteUtil.BIG_ENDIAN.toByteArray(lba, ByteUtil.INT_32_SIZE), 0, blockBuffer, 2, ByteUtil.INT_32_SIZE);
         blockBuffer[6] = 0; // Reserved
         blockBuffer[7] = (byte) ((transferLength >> 8) & 0xFF);
         blockBuffer[8] = (byte) (transferLength & 0xFF);
@@ -212,7 +212,7 @@ public class UsbSCSI {
                 ((ebp ? 1 : 0) << 2) |
                 (relAddr ? 1 : 0)
                 );
-        System.arraycopy(Commons.toByteBE(lba, 4), 0, blockBuffer, 2, 4);
+        System.arraycopy(ByteUtil.BIG_ENDIAN.toByteArray(lba, ByteUtil.INT_32_SIZE), 0, blockBuffer, 2, ByteUtil.INT_32_SIZE);
         blockBuffer[6] = 0; // Reserved
         blockBuffer[7] = (byte) ((transferLength >> 8) & 0xFF);
         blockBuffer[8] = (byte) (transferLength & 0xFF);

@@ -29,6 +29,7 @@ import javax.usb.util.StandardRequest;
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 import org.osgi.framework.BundleContext;
+import org.squilla.io.FrameBuffer;
 import org.squilla.usb.UsbDeviceDriver;
 import org.squilla.util.ArrayFifoQueue;
 import org.squilla.util.BlockingFifoQueue;
@@ -58,7 +59,8 @@ public class BulkOnlyTransportDriver extends UsbDeviceDriver implements Runnable
     private UsbEndpoint bulkOut;
     private UsbPipe bulkInPipe;
     private UsbPipe bulkOutPipe;
-    private byte[] commandBuffer;
+    private byte[] rawCommandBuffer;
+    private FrameBuffer commandBuffer;
     private int state;
     private byte maxLUN;
     private BlockingFifoQueue commandBlockQueue;
@@ -70,7 +72,8 @@ public class BulkOnlyTransportDriver extends UsbDeviceDriver implements Runnable
 
     public BulkOnlyTransportDriver(BundleContext bc) {
         super(bc);
-        commandBuffer = new byte[COMMAND_BUFFER_SIZE];
+        rawCommandBuffer = new byte[COMMAND_BUFFER_SIZE];
+        commandBuffer = new FrameBuffer(rawCommandBuffer);
         commandBlockQueue = new ArrayFifoQueue(QUEUE_SIZE);
         statusQueue = new ArrayFifoQueue(QUEUE_SIZE);
         maxLUN = -1;
@@ -171,8 +174,10 @@ public class BulkOnlyTransportDriver extends UsbDeviceDriver implements Runnable
             currentCBW = (CommandBlockWrapper) commandBlockQueue.blockingDequeue();
             logger.trace("BBB - Dequeue");
             irp = bulkOutPipe.createUsbIrp();
-            currentCBW.getPacket(0, commandBuffer);
-            irp.setData(commandBuffer);
+            commandBuffer.rewind();
+            commandBuffer.clean(CommandBlockWrapper.CBW_PACKET_SIZE);
+            currentCBW.pull(commandBuffer);
+            irp.setData(rawCommandBuffer);
             irp.setLength(CommandBlockWrapper.CBW_PACKET_SIZE);
             logger.trace("BBB - Sync Submit");
             bulkOutPipe.syncSubmit(irp);
@@ -218,8 +223,9 @@ public class BulkOnlyTransportDriver extends UsbDeviceDriver implements Runnable
         case STATE_STATUS_TRANSPORT_1ST:
         case STATE_STATUS_TRANSPORT_2ND:
             logger.trace("BBB - Status Tranport");
+            commandBuffer.rewind();
             irp = bulkInPipe.createUsbIrp();
-            irp.setData(commandBuffer);
+            irp.setData(rawCommandBuffer);
             irp.setLength(CommandStatusWrapper.CSW_PACKET_SIZE);
             try {
                 bulkInPipe.syncSubmit(irp);
@@ -235,7 +241,8 @@ public class BulkOnlyTransportDriver extends UsbDeviceDriver implements Runnable
                     break;
                 }
             }
-            currentCSW = CommandStatusWrapper.parse(0, irp.getData());
+            currentCSW = new CommandStatusWrapper();
+            currentCSW.drain(commandBuffer);
             // CSW Valid ?
             if (currentCSW != null && currentCSW.getTag() == currentCBW.getTag()) {
                 // Phase Error Status ?
@@ -282,10 +289,10 @@ public class BulkOnlyTransportDriver extends UsbDeviceDriver implements Runnable
         if (maxLUN == -1) {
             byte bmRequestType = UsbConst.REQUESTTYPE_TYPE_CLASS | UsbConst.REQUESTTYPE_RECIPIENT_INTERFACE | UsbConst.REQUESTTYPE_DIRECTION_IN;
             UsbControlIrp controlIrp = usbDevice.createUsbControlIrp(bmRequestType, REQUEST_GET_MAX_LUN, (short) 0x0000, (short) 0);
-            controlIrp.setData(commandBuffer);
+            controlIrp.setData(rawCommandBuffer);
             controlIrp.setLength(1);
             usbDevice.syncSubmit(controlIrp);
-            maxLUN = commandBuffer[0];
+            maxLUN = rawCommandBuffer[0];
         }
         return maxLUN;
     }
