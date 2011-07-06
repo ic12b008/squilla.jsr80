@@ -35,34 +35,19 @@
             <version>1.0.1</version>
         </dependency>
         <dependency>
-            <artifactId>cherax-system</artifactId>
-            <groupId>com.valleycampus</groupId>
-            <type>jar</type>
-            <version>0.0.1</version>
+            <groupId>org.squilla</groupId>
+            <artifactId>squilla-commons</artifactId>
+            <version>0.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.valleycampus.usb</groupId>
+            <artifactId>cherax-jsr80</artifactId>
+            <version>0.0.3</version>
             <exclusions>
                 <exclusion>
                     <artifactId>cherax-system</artifactId>
                     <groupId>com.valleycampus</groupId>
                 </exclusion>
-                <exclusion>
-                    <artifactId>ajile-net</artifactId>
-                    <groupId>com.ajile.net</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>filesystem-vfs</artifactId>
-                    <groupId>com.ajile.filesystem</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>runtime-cdc11</artifactId>
-                    <groupId>com.ajile</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.valleycampus.usb</groupId>
-            <artifactId>cherax-jsr80</artifactId>
-            <version>0.0.1</version>
-            <exclusions>
                 <exclusion>
                     <artifactId>javax-usb-ri</artifactId>
                     <groupId>com.ibm.jusb</groupId>
@@ -72,11 +57,6 @@
                     <groupId>com.ajile</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.squilla</groupId>
-            <artifactId>squilla-commons</artifactId>
-            <version>0.0.5</version>
         </dependency>
     </dependencies>
 
@@ -90,8 +70,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-Activator>org.squilla.usb.Activator</Bundle-Activator>
-                        <Export-Package>org.squilla.io,org.squilla.usb,org.squilla.usb.hub,org.squilla.usb.msd,org.squilla.util</Export-Package>
-                        <Private-Package>org.squilla.io.*,org.squilla.usb.*,org.squilla.util.*</Private-Package>
+                        <Export-Package>javax.usb,javax.usb.event,javax.usb.util,org.squilla.usb,org.squilla.usb.hub,org.squilla.usb.msd</Export-Package>
+                        <Import-Package>!com.ibm.jusb.*,!com.valleycampus.usb.*,!javax.usb.*,*</Import-Package>
+                        <Private-Package>org.squilla.usb.*</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

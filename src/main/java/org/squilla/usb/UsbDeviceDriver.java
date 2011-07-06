@@ -108,7 +108,7 @@ public abstract class UsbDeviceDriver implements Driver {
         }
         
         attach(usbDevice, usbInterface);
-        
+
         return null;
     }
 }

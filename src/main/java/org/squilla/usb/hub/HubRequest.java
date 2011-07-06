@@ -15,7 +15,6 @@
  */
 package org.squilla.usb.hub;
 
-import org.squilla.util.Commons;
 import javax.usb.UsbConst;
 import javax.usb.UsbControlIrp;
 import javax.usb.UsbDevice;

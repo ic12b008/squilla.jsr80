@@ -15,6 +15,8 @@
  */
 package org.squilla.usb;
 
+import com.valleycampus.usb.host.hub.HubOsDriverImpl;
+import org.squilla.usb.hub.HubOsDriver;
 import java.util.Hashtable;
 import javax.usb.UsbHostManager;
 import javax.usb.UsbServices;
@@ -39,10 +41,10 @@ public class Activator implements BundleActivator {
         refreshLogService(bc);
         
         info("Start USB Services(JSR-80)");
-        
         UsbServices services = UsbHostManager.getUsbServices();
         usbDeviceManager = new UsbDeviceManager(bc);
         services.addUsbServicesListener(usbDeviceManager);
+        bc.registerService(HubOsDriver.class.getName(), new HubOsDriverImpl(), null);
         
         info("Load Standard Class Drivers");
         registerDriver(bc, new HubDriver(bc), "org.squilla.usb.HubDriver.1.0");

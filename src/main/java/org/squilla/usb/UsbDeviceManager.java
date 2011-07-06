@@ -86,7 +86,7 @@ public class UsbDeviceManager implements UsbServicesListener {
         
         props.put(DEVICE_VID_PID, getDeviceID(usbDevice));
         props.put(DEVICE_CLASS, getClassCode(classCode));
-        bc.registerService(UsbDevice.class.getName(), device, props);
+        bc.registerService(device.getClass().getName(), device, props);
     }
 
     public void usbDeviceAttached(UsbServicesEvent event) {

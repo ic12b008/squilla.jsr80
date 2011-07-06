@@ -15,7 +15,6 @@
  */
 package org.squilla.usb.hub;
 
-import com.valleycampus.usb.hub.HubOsDriver;
 import java.util.List;
 import javax.usb.UsbConst;
 import javax.usb.UsbDevice;
