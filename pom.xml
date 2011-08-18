@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.squilla</groupId>
             <artifactId>squilla-commons</artifactId>
-            <version>0.0.7</version>
+            <version>0.1.2</version>
         </dependency>
     </dependencies>
 
@@ -194,5 +194,5 @@
             </build>
         </profile>
     </profiles>
-    <version>0.0.4</version>
+    <version>0.0.41</version>
 </project>

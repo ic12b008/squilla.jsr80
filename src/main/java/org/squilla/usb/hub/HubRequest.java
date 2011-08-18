@@ -21,7 +21,7 @@ import javax.usb.UsbDevice;
 import javax.usb.UsbEndpoint;
 import javax.usb.UsbException;
 import javax.usb.util.UsbUtil;
-import org.squilla.util.ByteUtil;
+import org.squilla.io.ByteUtil;
 
 /**
  *

@@ -15,7 +15,7 @@
  */
 package org.squilla.usb.msd;
 
-import org.squilla.util.ByteUtil;
+import org.squilla.io.ByteUtil;
 
 /**
  *
