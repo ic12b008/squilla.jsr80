@@ -15,7 +15,6 @@
  */
 package org.squilla.usb;
 
-import com.valleycampus.usb.host.hub.HubOsDriverImpl;
 import org.squilla.usb.hub.HubOsDriver;
 import java.util.Hashtable;
 import javax.usb.UsbHostManager;
@@ -40,13 +39,19 @@ public class Activator implements BundleActivator {
     public void start(BundleContext bc) throws Exception {
         refreshLogService(bc);
         
-        info("Start USB Services(JSR-80)");
+        log(LogService.LOG_INFO, "Start USB Services(JSR-80)");
         UsbServices services = UsbHostManager.getUsbServices();
         usbDeviceManager = new UsbDeviceManager(bc);
         services.addUsbServicesListener(usbDeviceManager);
-        bc.registerService(HubOsDriver.class.getName(), new HubOsDriverImpl(), null);
+        String driverClassName = bc.getProperty(HubOsDriver.DRIVER_CLASS);
+        try {
+            Class driverClass = Class.forName(driverClassName);
+            bc.registerService(HubOsDriver.class.getName(), driverClass.newInstance(), null);
+        } catch (Exception ex) {
+            log(LogService.LOG_ERROR, "Can't load HubOsDriver implementation: " + driverClassName + ", " + ex);
+        }
         
-        info("Load Standard Class Drivers");
+        log(LogService.LOG_INFO, "Load Standard Class Drivers");
         registerDriver(bc, new HubDriver(bc), "org.squilla.usb.HubDriver.1.0");
         registerDriver(bc, new BulkOnlyTransportDriver(bc), "org.squilla.usb.BulkOnlyTransportDriver.1.0");
     }
@@ -60,7 +65,7 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext bc) throws Exception {
         refreshLogService(bc);
         
-        info("Stop USB Services(JSR-80)");
+        log(LogService.LOG_INFO, "Stop USB Services(JSR-80)");
 
         UsbServices services = UsbHostManager.getUsbServices();
         services.removeUsbServicesListener(usbDeviceManager);
@@ -72,17 +77,9 @@ public class Activator implements BundleActivator {
         log = (LogService) bc.getService(logRef);
     }
     
-    private void info(String str) {
+    private void log(int level, String str) {
         try {
-            log.log(LogService.LOG_INFO, str);
-        } catch (Exception ex) {
-            System.err.println("[UsbActivator] " + str);
-        }
-    }
-    
-    private void debug(String str) {
-        try {
-            log.log(LogService.LOG_DEBUG, str);
+            log.log(level, str);
         } catch (Exception ex) {
             System.err.println("[UsbActivator] " + str);
         }
