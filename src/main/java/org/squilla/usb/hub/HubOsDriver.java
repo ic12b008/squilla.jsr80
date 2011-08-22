@@ -33,4 +33,7 @@ public interface HubOsDriver {
     public void hubStatusChanged();
     
     public void portStatusChanged(int port);
+    
+    public Object getDeviceAddress(UsbDevice usbDevice);
+    
 }

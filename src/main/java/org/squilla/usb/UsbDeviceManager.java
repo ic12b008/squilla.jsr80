@@ -24,6 +24,7 @@ import javax.usb.event.UsbServicesEvent;
 import javax.usb.event.UsbServicesListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.squilla.usb.hub.HubOsDriver;
 
 /**
  *
@@ -58,19 +59,13 @@ public class UsbDeviceManager implements UsbServicesListener {
         return getDeviceID(vid, pid);
     }
     
-    public static String getDeviceSerial(UsbDevice usbDevice) {
-        try {
-            // Assume implementation is RI(jUSB).
-            Class usbDeviceImpClass = Class.forName("com.ibm.jusb.UsbDeviceImp");
-            Object usbDeviceOs = usbDeviceImpClass.getMethod("getUsbDeviceOsImp", null).invoke(usbDevice, null);
-            // Assume OS-level implementation is aJ102.
-            Class usbDeviceOsImpClass = Class.forName("com.valleycampus.usb.host.aJ102UsbDeviceOsImp");
-            Object deviceAddress = usbDeviceOsImpClass.getMethod("getDeviceAddress", null).invoke(usbDeviceOs, null);
-
-            return "DEVADDR_" + deviceAddress.toString();
-        } catch (Exception ex) {
+    public String getDeviceSerial(UsbDevice usbDevice) {
+        ServiceReference ref = bc.getServiceReference(HubOsDriver.class.getName());
+        if (ref != null) {
+            HubOsDriver os = (HubOsDriver) bc.getService(ref);
+            return "DEVADDR_" + os.getDeviceAddress(usbDevice).toString();
         }
-        // FIXME: This is not unique number.
+        // FIXME: This is not an unique number.
         return "PORT_" + usbDevice.getParentUsbPort().getPortNumber();
     }
 
